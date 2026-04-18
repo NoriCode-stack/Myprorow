@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}登录 - 图书借阅管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                <h3 class="card-title text-center mb-4">
+                    <i class="bi bi-box-arrow-in-right text-primary me-2"></i>用户登录
+                </h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>用户名或密码错误，请重试。
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" name="username" class="form-control" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">密码</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                        登 录
+                    </button>
+                    </div>
+                </form>
+                <div class="mt-4 p-3 bg-light rounded">
+                    <p class="mb-1"><small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>测试账号：
+                    </small></p>
+                    <p class="mb-1"><small>管理员: admin / admin123</small></p>
+                    <p class="mb-0"><small>普通用户: user / user123</small></p>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

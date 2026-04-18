@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}借阅与归还 - 图书借阅管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">
+        <i class="bi bi-arrow-left-right text-primary me-2"></i>借阅与归还
+    </h2>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-journal-check me-2"></i>我的借阅中
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if my_borrowed %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>图书</th>
+                                    <th>借阅日期</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in my_borrowed %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ record.book.title }}</strong>
+                                        <br><small class="text-muted">{{ record.book.author }}</small>
+                                    </td>
+                                    <td>{{ record.borrow_date|date:"Y-m-d" }}</td>
+                                    <td>
+                                        {% if record.status == 'overdue' %}
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>逾期{{ record.get_overdue_days }}天
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-success">借阅中</span>
+                                        <br><small class="text-muted">应还: {{ record.due_date|date:"Y-m-d" }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'return_book' record.id %}" class="btn btn-sm btn-outline-success" onclick="return confirm('确认归还《{{ record.book.title }}》？')">
+                                            <i class="bi bi-arrow-return-left me-1"></i>归还
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-journal-x text-muted" style="font-size: 3rem;"></i>
+                        <p class="mt-2 text-muted">暂无正在借阅的图书</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-bookmark-plus me-2"></i>可借阅图书
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if books %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>书名</th>
+                                    <th>作者</th>
+                                    <th>库存</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for book in books %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ book.title }}</strong>
+                                    </td>
+                                    <td>{{ book.author }}</td>
+                                    <td>
+                                        <span class="badge bg-success">{{ book.available_copies }}册</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'borrow_book' book.id %}" class="btn btn-sm btn-outline-primary" onclick="return confirm('确认借阅《{{ book.title }}》？')">
+                                            <i class="bi bi-bookmark-check me-1"></i>借阅
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
+                        <p class="mt-2 text-muted">暂无可借阅的图书</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
