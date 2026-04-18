@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block title %}首页 - 图书借阅管理系统{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">探索知识的海洋</h1>
+                <p class="lead mb-4">海量图书资源，便捷的借阅服务，让阅读成为生活的一部分。</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'book_list' %}" class="btn btn-light btn-lg">
+                        <i class="bi bi-search me-2"></i>浏览图书
+                    </a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>立即注册
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-book" style="font-size: 200px; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 统计信息 -->
+<section class="py-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="mb-0">{{ total_books }}</h3>
+                            <p class="mb-0">图书总数</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card" style="background: linear-gradient(135deg, #27ae60 0%, #229954 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="mb-0">{{ available_books }}</h3>
+                            <p class="mb-0">可借图书</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-journal-arrow-up"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="mb-0">{{ total_borrows }}</h3>
+                            <p class="mb-0">累计借阅</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 新书上架 -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold"><i class="bi bi-stars me-2 text-warning"></i>新书上架</h2>
+            <a href="{% url 'book_list' %}" class="btn btn-outline-primary">查看更多</a>
+        </div>
+        <div class="row g-4">
+            {% for book in new_books %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card book-card h-100">
+                    <div class="position-relative">
+                        <img src="{{ book.cover_image }}" class="card-img-top" alt="{{ book.title }}">
+                        {% if book.status == 'available' %}
+                        <span class="status-badge status-available">可借阅</span>
+                        {% else %}
+                        <span class="status-badge status-borrowed">已借出</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="book-title" title="{{ book.title }}">{{ book.title }}</h5>
+                        <p class="book-author mb-2">{{ book.author }}</p>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-sm btn-outline-primary w-100">查看详情</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
+                <p class="text-muted mt-3">暂无新书</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- 热门借阅 -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold"><i class="bi bi-fire me-2 text-danger"></i>热门借阅</h2>
+            <a href="{% url 'book_list' %}" class="btn btn-outline-primary">查看更多</a>
+        </div>
+        <div class="row g-4">
+            {% for book in hot_books %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card book-card h-100">
+                    <div class="position-relative">
+                        <img src="{{ book.cover_image }}" class="card-img-top" alt="{{ book.title }}">
+                        {% if book.status == 'available' %}
+                        <span class="status-badge status-available">可借阅</span>
+                        {% else %}
+                        <span class="status-badge status-borrowed">已借出</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="book-title" title="{{ book.title }}">{{ book.title }}</h5>
+                        <p class="book-author mb-2">{{ book.author }}</p>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-sm btn-outline-primary w-100">查看详情</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
+                <p class="text-muted mt-3">暂无数据</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- 功能介绍 -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">系统功能</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-search" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                    </div>
+                    <h4>智能检索</h4>
+                    <p class="text-muted">支持书名、作者、ISBN等多维度搜索，快速找到您需要的图书。</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-calendar-check" style="font-size: 3rem; color: var(--success-color);"></i>
+                    </div>
+                    <h4>便捷借阅</h4>
+                    <p class="text-muted">在线借阅、归还，实时查看借阅状态，到期自动提醒。</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-clock-history" style="font-size: 3rem; color: var(--warning-color);"></i>
+                    </div>
+                    <h4>借阅记录</h4>
+                    <p class="text-muted">完整的借阅历史记录，逾期提醒，罚款管理。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
