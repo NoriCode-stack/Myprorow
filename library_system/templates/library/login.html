@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}登录 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>用户登录</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            用户名或密码错误，请重试
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-person me-1"></i>用户名</label>
+                            <input type="text" class="form-control form-control-lg" 
+                                   name="username" required placeholder="请输入用户名">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-lock me-1"></i>密码</label>
+                            <input type="password" class="form-control form-control-lg" 
+                                   name="password" required placeholder="请输入密码">
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" name="remember" id="remember">
+                            <label class="form-check-label" for="remember">记住我</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>登录
+                        </button>
+                    </form>
+
+                    <hr>
+
+                    <div class="text-center">
+                        <p class="mb-0">还没有账号？</p>
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary mt-2">
+                            <i class="bi bi-person-plus me-2"></i>立即注册
+                        </a>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6><i class="bi bi-info-circle me-1"></i>测试账号</h6>
+                        <p class="mb-1 small"><strong>普通用户：</strong>user / user123456</p>
+                        <p class="mb-0 small"><strong>管理员：</strong>admin / admin123456</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

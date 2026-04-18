@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}用户管理 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-people me-2"></i>用户管理</h2>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <form method="get" class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="search" 
+                           value="{{ search|default:'' }}" placeholder="搜索用户名或学号...">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i>搜索
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'admin_users' %}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>重置
+                    </a>
+                </div>
+            </form>
+        </div>
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>学号/工号</th>
+                            <th>电话</th>
+                            <th>院系/部门</th>
+                            <th>借阅上限</th>
+                            <th>当前借阅</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for profile in page_obj %}
+                        <tr>
+                            <td>
+                                <strong>{{ profile.user.username }}</strong>
+                                {% if profile.user.is_staff %}
+                                    <span class="badge bg-warning text-dark ms-1">管理员</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ profile.student_id|default:"-" }}</td>
+                            <td>{{ profile.phone|default:"-" }}</td>
+                            <td>{{ profile.department|default:"-" }}</td>
+                            <td>{{ profile.max_borrow_limit }}</td>
+                            <td>
+                                <span class="{% if profile.current_borrowed_count >= profile.max_borrow_limit %}text-danger{% else %}text-success{% endif %}">
+                                    {{ profile.current_borrowed_count }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if profile.user.is_active %}
+                                    <span class="badge bg-success">正常</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">禁用</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&search={{ search }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-people display-1 text-muted mb-3"></i>
+                <h5>暂无用户</h5>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

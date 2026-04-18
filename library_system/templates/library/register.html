@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}注册 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>用户注册</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            请检查以下错误：
+                            <ul class="mb-0 mt-2">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-person me-1"></i>用户名</label>
+                            <input type="text" class="form-control form-control-lg" 
+                                   name="username" required placeholder="请输入用户名"
+                                   value="{{ form.username.value|default:'' }}">
+                            <div class="form-text">用户名将用于登录</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-lock me-1"></i>密码</label>
+                            <input type="password" class="form-control form-control-lg" 
+                                   name="password1" required placeholder="请输入密码">
+                            <div class="form-text">密码至少8位，不能全是数字</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-lock-fill me-1"></i>确认密码</label>
+                            <input type="password" class="form-control form-control-lg" 
+                                   name="password2" required placeholder="请再次输入密码">
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-person-plus me-2"></i>注册
+                        </button>
+                    </form>
+
+                    <hr>
+
+                    <div class="text-center">
+                        <p class="mb-0">已有账号？</p>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary mt-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>立即登录
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

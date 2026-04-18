@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}借阅图书 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">首页</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'book_list' %}">图书列表</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'book_detail' book.pk %}">{{ book.title }}</a></li>
+            <li class="breadcrumb-item active">借阅</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-book-half me-2"></i>借阅确认</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            {% if book.cover_image %}
+                                <img src="{{ book.cover_image }}" class="img-fluid rounded" alt="{{ book.title }}">
+                            {% else %}
+                                <div class="book-cover-placeholder rounded" style="height: 150px;">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <h5>{{ book.title }}</h5>
+                            <p class="text-muted mb-1"><i class="bi bi-person me-1"></i>{{ book.author }}</p>
+                            <p class="text-muted mb-1"><i class="bi bi-building me-1"></i>{{ book.publisher|default:"未知出版社" }}</p>
+                            <p class="text-muted mb-0"><i class="bi bi-upc-scan me-1"></i>ISBN: {{ book.isbn }}</p>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label"><i class="bi bi-calendar-event me-1"></i>应还日期</label>
+                            {{ form.due_date }}
+                            <div class="form-text">借阅期限为30天，请按时归还</div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>借阅须知：</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>请爱护图书，不要涂画或损坏</li>
+                                <li>逾期未还将产生逾期记录</li>
+                                <li>如有问题请联系图书馆管理员</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>确认借阅
+                            </button>
+                            <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>取消
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
