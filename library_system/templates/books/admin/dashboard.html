@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}后台管理 - 图书借阅管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="fw-bold mb-4"><i class="bi bi-gear me-2"></i>后台管理</h2>
+
+    <div class="row">
+        <!-- 侧边栏 -->
+        <div class="col-lg-3 mb-4">
+            <div class="admin-sidebar">
+                <h5 class="mb-3">管理菜单</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="{% url 'admin_dashboard' %}">
+                        <i class="bi bi-speedometer2 me-2"></i>仪表盘
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_book_list' %}">
+                        <i class="bi bi-book me-2"></i>图书管理
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_user_list' %}">
+                        <i class="bi bi-people me-2"></i>用户管理
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_borrow_list' %}">
+                        <i class="bi bi-journal-text me-2"></i>借阅记录
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="col-lg-9">
+            <!-- 统计卡片 -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ total_books }}</h3>
+                                    <p class="mb-0">图书总数</p>
+                                </div>
+                                <i class="bi bi-book" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ total_users }}</h3>
+                                    <p class="mb-0">注册用户</p>
+                                </div>
+                                <i class="bi bi-people" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ active_borrows }}</h3>
+                                    <p class="mb-0">当前借阅</p>
+                                </div>
+                                <i class="bi bi-journal-arrow-up" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ overdue_borrows }}</h3>
+                                    <p class="mb-0">逾期借阅</p>
+                                </div>
+                                <i class="bi bi-exclamation-triangle" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近借阅记录 -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>最近借阅记录</h5>
+                    <a href="{% url 'admin_borrow_list' %}" class="btn btn-sm btn-outline-primary">查看全部</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>用户</th>
+                                    <th>图书</th>
+                                    <th>借阅日期</th>
+                                    <th>应还日期</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for borrow in recent_borrows %}
+                                <tr>
+                                    <td>{{ borrow.user.username }}</td>
+                                    <td>{{ borrow.book.title }}</td>
+                                    <td>{{ borrow.borrow_date|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ borrow.due_date|date:"Y-m-d" }}</td>
+                                    <td>
+                                        {% if borrow.status == 'borrowed' %}
+                                        <span class="badge bg-success">借阅中</span>
+                                        {% elif borrow.status == 'returned' %}
+                                        <span class="badge bg-secondary">已归还</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">已逾期</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">暂无借阅记录</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

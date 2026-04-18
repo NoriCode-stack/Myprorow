@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if book %}编辑图书{% else %}添加图书{% endif %} - 后台管理{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="fw-bold mb-4"><i class="bi bi-gear me-2"></i>后台管理</h2>
+
+    <div class="row">
+        <!-- 侧边栏 -->
+        <div class="col-lg-3 mb-4">
+            <div class="admin-sidebar">
+                <h5 class="mb-3">管理菜单</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{% url 'admin_dashboard' %}">
+                        <i class="bi bi-speedometer2 me-2"></i>仪表盘
+                    </a>
+                    <a class="nav-link active" href="{% url 'admin_book_list' %}">
+                        <i class="bi bi-book me-2"></i>图书管理
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_user_list' %}">
+                        <i class="bi bi-people me-2"></i>用户管理
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_borrow_list' %}">
+                        <i class="bi bi-journal-text me-2"></i>借阅记录
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        {% if book %}
+                        <i class="bi bi-pencil me-2"></i>编辑图书
+                        {% else %}
+                        <i class="bi bi-plus-lg me-2"></i>添加图书
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="title" class="form-label">书名 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="title" name="title" required 
+                                       value="{{ book.title|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="author" class="form-label">作者 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="author" name="author" required 
+                                       value="{{ book.author|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="isbn" class="form-label">ISBN <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="isbn" name="isbn" required 
+                                       value="{{ book.isbn|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="publisher" class="form-label">出版社</label>
+                                <input type="text" class="form-control" id="publisher" name="publisher" 
+                                       value="{{ book.publisher|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">分类</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="">-- 选择分类 --</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}" 
+                                            {% if book and book.category.id == category.id %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="total_copies" class="form-label">库存数量</label>
+                                <input type="number" class="form-control" id="total_copies" name="total_copies" 
+                                       min="1" value="{{ book.total_copies|default:'1' }}">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">存放位置</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   value="{{ book.location|default:'' }}" placeholder="例如：A区-3排-12号">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">图书简介</label>
+                            <textarea class="form-control" id="description" name="description" rows="5">{{ book.description|default:'' }}</textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-2"></i>保存
+                            </button>
+                            <a href="{% url 'admin_book_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-lg me-2"></i>取消
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

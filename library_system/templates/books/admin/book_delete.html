@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}删除图书 - 后台管理{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="fw-bold mb-4"><i class="bi bi-gear me-2"></i>后台管理</h2>
+
+    <div class="row">
+        <!-- 侧边栏 -->
+        <div class="col-lg-3 mb-4">
+            <div class="admin-sidebar">
+                <h5 class="mb-3">管理菜单</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{% url 'admin_dashboard' %}">
+                        <i class="bi bi-speedometer2 me-2"></i>仪表盘
+                    </a>
+                    <a class="nav-link active" href="{% url 'admin_book_list' %}">
+                        <i class="bi bi-book me-2"></i>图书管理
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_user_list' %}">
+                        <i class="bi bi-people me-2"></i>用户管理
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_borrow_list' %}">
+                        <i class="bi bi-journal-text me-2"></i>借阅记录
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>删除图书</h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-exclamation-circle" style="font-size: 4rem; color: var(--accent-color);"></i>
+                    <h4 class="mt-4">确认删除图书？</h4>
+                    <p class="text-muted mb-4">
+                        您即将删除图书 <strong>《{{ book.title }}》</strong><br>
+                        此操作不可恢复，请谨慎操作。
+                    </p>
+                    
+                    <div class="d-flex justify-content-center gap-3">
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-2"></i>确认删除
+                            </button>
+                        </form>
+                        <a href="{% url 'admin_book_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-lg me-2"></i>取消
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
