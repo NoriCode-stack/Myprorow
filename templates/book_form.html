@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if book %}编辑图书{% else %}添加图书{% endif %} - 图书借阅管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi {% if book %}bi-pencil{% else %}bi-plus-lg{% endif %} me-2"></i>
+                        {% if book %}编辑图书{% else %}添加新图书{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label">书名 *</label>
+                                <input type="text" name="title" class="form-control" required value="{{ book.title|default:'' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">作者 *</label>
+                                <input type="text" name="author" class="form-control" required value="{{ book.author|default:'' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">ISBN *</label>
+                                <input type="text" name="isbn" class="form-control" required value="{{ book.isbn|default:'' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">分类 *</label>
+                                <select name="category" class="form-select" required>
+                                    <option value="">请选择分类</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if book and book.category.id == cat.id %}selected{% endif %}>
+                                        {{ cat.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">馆藏数量</label>
+                                <input type="number" name="total_copies" class="form-control" min="1" value="{{ book.total_copies|default:1 }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">出版社 *</label>
+                                <input type="text" name="publisher" class="form-control" required value="{{ book.publisher|default:'' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">出版日期 *</label>
+                                <input type="date" name="publication_date" class="form-control" required value="{{ book.publication_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">图书简介 *</label>
+                                <textarea name="description" class="form-control" rows="5" required>{{ book.description|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'admin_manage' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>返回
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>保存
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

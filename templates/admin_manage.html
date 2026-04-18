@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}后台管理 - 图书借阅管理系统{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4">
+        <i class="bi bi-gear text-primary me-2"></i>后台管理
+    </h2>
+
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3>{{ books|length }}</h3>
+                            <p class="mb-0">图书总数</p>
+                        </div>
+                        <i class="bi bi-book" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3>{{ books|dictsortreversed:"available_copies"|first|default:0 }}</h3>
+                            <p class="mb-0">可借图书</p>
+                        </div>
+                        <i class="bi bi-check-circle" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3>{{ categories|length }}</h3>
+                            <p class="mb-0">图书分类</p>
+                        </div>
+                        <i class="bi bi-tags" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3>{{ borrow_records|length }}</h3>
+                            <p class="mb-0">借阅记录</p>
+                        </div>
+                        <i class="bi bi-journal-text" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-book me-2"></i>图书管理
+            </h5>
+            <a href="{% url 'add_book' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>添加图书
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>书名</th>
+                            <th>作者</th>
+                            <th>分类</th>
+                            <th>ISBN</th>
+                            <th>出版社</th>
+                            <th>总馆藏</th>
+                            <th>可借</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in books %}
+                        <tr>
+                            <td>{{ book.id }}</td>
+                            <td><strong>{{ book.title }}</strong></td>
+                            <td>{{ book.author }}</td>
+                            <td><span class="badge bg-secondary">{{ book.category.name }}</span></td>
+                            <td><code>{{ book.isbn }}</code></td>
+                            <td>{{ book.publisher }}</td>
+                            <td>{{ book.total_copies }}</td>
+                            <td>
+                                <span class="badge {% if book.available_copies > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ book.available_copies }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'edit_book' book.id %}" class="btn btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'delete_book' book.id %}" class="btn btn-outline-danger" onclick="return confirm('确认删除《{{ book.title }}》？')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">暂无图书数据</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-journal-text me-2"></i>最近借阅记录
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>用户</th>
+                            <th>图书</th>
+                            <th>借阅日期</th>
+                            <th>应还日期</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in borrow_records %}
+                        <tr>
+                            <td>{{ record.user.username }}</td>
+                            <td>{{ record.book.title }}</td>
+                            <td>{{ record.borrow_date|date:"Y-m-d" }}</td>
+                            <td>{{ record.due_date|date:"Y-m-d" }}</td>
+                            <td>
+                                {% if record.status == 'borrowed' %}
+                                <span class="badge bg-primary">借阅中</span>
+                                {% elif record.status == 'returned' %}
+                                <span class="badge bg-success">已归还</span>
+                                {% elif record.status == 'overdue' %}
+                                <span class="badge bg-danger">逾期</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">暂无借阅记录</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
