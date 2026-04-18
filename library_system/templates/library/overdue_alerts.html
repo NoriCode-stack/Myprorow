@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}逾期提醒 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-bell me-2"></i>逾期提醒</h2>
+        </div>
+    </div>
+
+    {% if overdue_records %}
+    <div class="card border-danger mb-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>已逾期图书 ({{ overdue_records.count }}本)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>图书信息</th>
+                            <th>借阅日期</th>
+                            <th>应还日期</th>
+                            <th>逾期天数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in overdue_records %}
+                        <tr class="table-danger">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if record.book.cover_image %}
+                                        <img src="{{ record.book.cover_image }}" class="rounded me-3" 
+                                             style="width: 50px; height: 70px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="book-cover-placeholder rounded me-3" 
+                                             style="width: 50px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-book text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ record.book.title }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ record.book.author }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ record.borrow_date|date:"Y-m-d" }}</td>
+                            <td>{{ record.due_date|date:"Y-m-d" }}</td>
+                            <td><span class="badge bg-danger">{{ record.overdue_days }} 天</span></td>
+                            <td>
+                                <a href="{% url 'return_book' record.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-arrow-return-left me-1"></i>立即归还
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if upcoming_records %}
+    <div class="card border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="bi bi-clock me-2"></i>即将到期图书 ({{ upcoming_records.count }}本)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>图书信息</th>
+                            <th>借阅日期</th>
+                            <th>应还日期</th>
+                            <th>剩余天数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in upcoming_records %}
+                        <tr class="table-warning">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if record.book.cover_image %}
+                                        <img src="{{ record.book.cover_image }}" class="rounded me-3" 
+                                             style="width: 50px; height: 70px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="book-cover-placeholder rounded me-3" 
+                                             style="width: 50px; height: 70px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-book text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ record.book.title }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ record.book.author }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ record.borrow_date|date:"Y-m-d" }}</td>
+                            <td>{{ record.due_date|date:"Y-m-d" }}</td>
+                            <td>
+                                {% with days_left=record.due_date|timeuntil %}
+                                    <span class="badge bg-warning text-dark">{{ days_left }}</span>
+                                {% endwith %}
+                            </td>
+                            <td>
+                                <a href="{% url 'return_book' record.pk %}" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-arrow-return-left me-1"></i>归还
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not overdue_records and not upcoming_records %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-check-circle display-1 text-success mb-3"></i>
+            <h4>太棒了！</h4>
+            <p class="text-muted">您没有逾期或即将到期的图书</p>
+            <a href="{% url 'my_records' %}" class="btn btn-primary">
+                <i class="bi bi-clock-history me-2"></i>查看借阅记录
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

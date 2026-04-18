@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}首页 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container text-center">
+        <h1><i class="bi bi-book-half me-3"></i>欢迎使用图书馆管理系统</h1>
+        <p class="lead mb-4">探索知识的海洋，开启阅读之旅</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="search-box">
+                    <form action="{% url 'book_list' %}" method="get" class="row g-2">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control form-control-lg" 
+                                   name="search" placeholder="搜索书名或作者...">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-search me-2"></i>搜索
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4 mb-5">
+        <div class="col-md-3 col-6">
+            <div class="card stat-card">
+                <i class="bi bi-journal-bookmark text-primary"></i>
+                <h3>{{ total_books|default:"1000" }}</h3>
+                <p>馆藏图书</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card">
+                <i class="bi bi-people text-success"></i>
+                <h3>{{ total_users|default:"500" }}</h3>
+                <p>注册用户</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card">
+                <i class="bi bi-book text-warning"></i>
+                <h3>{{ active_borrows|default:"120" }}</h3>
+                <p>借阅中</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card stat-card">
+                <i class="bi bi-tag text-danger"></i>
+                <h3>{{ categories.count|default:"15" }}</h3>
+                <p>图书分类</p>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mb-4"><i class="bi bi-star-fill text-warning me-2"></i>热门图书</h4>
+    <div class="row g-4 mb-5">
+        {% for book in popular_books %}
+        <div class="col-lg-2 col-md-3 col-6">
+            <div class="card book-card">
+                {% if book.cover_image %}
+                    <img src="{{ book.cover_image }}" class="card-img-top" alt="{{ book.title }}">
+                {% else %}
+                    <div class="book-cover-placeholder">
+                        <i class="bi bi-book"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title text-truncate">{{ book.title }}</h6>
+                    <p class="card-text small text-muted text-truncate">{{ book.author }}</p>
+                    <a href="{% url 'book_detail' book.pk %}" class="btn btn-sm btn-outline-primary w-100">
+                        详情
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        {% for i in "123456"|make_list %}
+        <div class="col-lg-2 col-md-3 col-6">
+            <div class="card book-card">
+                <div class="book-cover-placeholder">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title text-truncate">示例图书 {{ forloop.counter }}</h6>
+                    <p class="card-text small text-muted text-truncate">示例作者</p>
+                    <span class="btn btn-sm btn-outline-secondary w-100">详情</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+    </div>
+
+    <h4 class="mb-4"><i class="bi bi-clock-history me-2"></i>最新上架</h4>
+    <div class="row g-4 mb-5">
+        {% for book in books %}
+        <div class="col-lg-3 col-md-4 col-6">
+            <div class="card book-card">
+                {% if book.cover_image %}
+                    <img src="{{ book.cover_image }}" class="card-img-top" alt="{{ book.title }}">
+                {% else %}
+                    <div class="book-cover-placeholder">
+                        <i class="bi bi-book"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title text-truncate">{{ book.title }}</h6>
+                    <p class="card-text small text-muted text-truncate">{{ book.author }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge {% if book.is_available %}badge-available{% else %}badge-borrowed{% endif %}">
+                            {% if book.is_available %}可借{% else %}已借出{% endif %}
+                        </span>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-sm btn-primary">
+                            详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        {% for i in "1234"|make_list %}
+        <div class="col-lg-3 col-md-4 col-6">
+            <div class="card book-card">
+                <div class="book-cover-placeholder">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title text-truncate">新书示例 {{ forloop.counter }}</h6>
+                    <p class="card-text small text-muted text-truncate">作者名</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge badge-available">可借</span>
+                        <span class="btn btn-sm btn-primary">详情</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+    </div>
+
+    <div class="text-center">
+        <a href="{% url 'book_list' %}" class="btn btn-lg btn-primary">
+            <i class="bi bi-journal-bookmark me-2"></i>浏览全部图书
+        </a>
+    </div>
+</div>
+{% endblock %}

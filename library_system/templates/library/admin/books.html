@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}图书管理 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2><i class="bi bi-journal-text me-2"></i>图书管理</h2>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <a href="{% url 'admin_book_add' %}" class="btn btn-success">
+                <i class="bi bi-plus-circle me-2"></i>添加图书
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <form method="get" class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="search" 
+                           value="{{ search|default:'' }}" placeholder="搜索书名、作者或ISBN...">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i>搜索
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'admin_books' %}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>重置
+                    </a>
+                </div>
+            </form>
+        </div>
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>封面</th>
+                            <th>书名</th>
+                            <th>作者</th>
+                            <th>ISBN</th>
+                            <th>分类</th>
+                            <th>库存</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in page_obj %}
+                        <tr>
+                            <td>
+                                {% if book.cover_image %}
+                                    <img src="{{ book.cover_image }}" class="rounded" 
+                                         style="width: 40px; height: 55px; object-fit: cover;">
+                                {% else %}
+                                    <div class="book-cover-placeholder rounded" 
+                                         style="width: 40px; height: 55px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-book text-white small"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ book.title }}</strong></td>
+                            <td>{{ book.author }}</td>
+                            <td><code>{{ book.isbn }}</code></td>
+                            <td>{{ book.category.name|default:"未分类" }}</td>
+                            <td>
+                                <span class="text-success">{{ book.available_copies }}</span>
+                                / {{ book.total_copies }}
+                            </td>
+                            <td>
+                                <span class="badge {% if book.is_available %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ book.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline-primary" title="查看">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'admin_book_edit' book.pk %}" class="btn btn-outline-warning" title="编辑">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'admin_book_delete' book.pk %}" class="btn btn-outline-danger" title="删除">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&search={{ search }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-journal-x display-1 text-muted mb-3"></i>
+                <h5>暂无图书</h5>
+                <p class="text-muted">点击上方按钮添加新图书</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">首页</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'book_list' %}">图书列表</a></li>
+            <li class="breadcrumb-item active">{{ book.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card">
+                {% if book.cover_image %}
+                    <img src="{{ book.cover_image }}" class="card-img-top" alt="{{ book.title }}" style="max-height: 400px; object-fit: contain;">
+                {% else %}
+                    <div class="book-cover-placeholder" style="height: 400px;">
+                        <i class="bi bi-book"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h2 class="card-title mb-0">{{ book.title }}</h2>
+                        <span class="badge {% if book.is_available %}badge-available{% else %}badge-borrowed{% endif %} fs-6">
+                            {% if book.is_available %}可借阅{% else %}已借出{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="bi bi-person-fill me-2 text-primary"></i>
+                                <strong>作者：</strong>{{ book.author }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="bi bi-building me-2 text-primary"></i>
+                                <strong>出版社：</strong>{{ book.publisher|default:"未知" }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="bi bi-calendar me-2 text-primary"></i>
+                                <strong>出版日期：</strong>{{ book.publish_date|date:"Y年m月"|default:"未知" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="bi bi-upc-scan me-2 text-primary"></i>
+                                <strong>ISBN：</strong>{{ book.isbn }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="bi bi-tag me-2 text-primary"></i>
+                                <strong>分类：</strong>{{ book.category.name|default:"未分类" }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="bi bi-geo-alt me-2 text-primary"></i>
+                                <strong>馆藏位置：</strong>{{ book.location|default:"未指定" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5><i class="bi bi-book me-2"></i>库存信息</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center">
+                                    <h4 class="mb-0">{{ book.total_copies }}</h4>
+                                    <small class="text-muted">总册数</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center">
+                                    <h4 class="mb-0 text-success">{{ book.available_copies }}</h4>
+                                    <small class="text-muted">可借册数</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 text-center">
+                                    <h4 class="mb-0 text-warning">{{ book.borrow_rate }}%</h4>
+                                    <small class="text-muted">借阅率</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5><i class="bi bi-text-paragraph me-2"></i>图书简介</h5>
+                        <p class="text-muted">{{ book.description|default:"暂无简介"|linebreaks }}</p>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        {% if user.is_authenticated %}
+                            {% if book.is_available and not user_borrowed %}
+                            <a href="{% url 'borrow_book' book.pk %}" class="btn btn-success btn-lg">
+                                <i class="bi bi-book-half me-2"></i>立即借阅
+                            </a>
+                            {% elif user_borrowed %}
+                            <span class="btn btn-secondary btn-lg disabled">
+                                <i class="bi bi-check-circle me-2"></i>您已借阅此书
+                            </span>
+                            {% else %}
+                            <span class="btn btn-secondary btn-lg disabled">
+                                <i class="bi bi-x-circle me-2"></i>暂无可借副本
+                            </span>
+                            {% endif %}
+                        {% else %}
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>登录后借阅
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if related_books %}
+    <div class="mt-5">
+        <h4><i class="bi bi-collection me-2"></i>相关图书</h4>
+        <div class="row g-4">
+            {% for related in related_books %}
+            <div class="col-lg-3 col-md-4 col-6">
+                <div class="card book-card">
+                    {% if related.cover_image %}
+                        <img src="{{ related.cover_image }}" class="card-img-top" alt="{{ related.title }}">
+                    {% else %}
+                        <div class="book-cover-placeholder">
+                            <i class="bi bi-book"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title text-truncate">{{ related.title }}</h6>
+                        <p class="card-text small text-muted text-truncate">{{ related.author }}</p>
+                        <a href="{% url 'book_detail' related.pk %}" class="btn btn-sm btn-outline-primary w-100">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

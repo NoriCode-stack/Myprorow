@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}借阅记录管理 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-list-check me-2"></i>借阅记录管理</h2>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if not status %}active{% endif %}" href="{% url 'admin_borrow_records' %}">
+                        全部
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'borrowed' %}active{% endif %}" href="?status=borrowed">
+                        借阅中
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'returned' %}active{% endif %}" href="?status=returned">
+                        已归还
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if status == 'overdue' %}active{% endif %}" href="?status=overdue">
+                        已逾期
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>图书</th>
+                            <th>借阅日期</th>
+                            <th>应还日期</th>
+                            <th>归还日期</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in page_obj %}
+                        <tr>
+                            <td>
+                                <strong>{{ record.user.username }}</strong>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if record.book.cover_image %}
+                                        <img src="{{ record.book.cover_image }}" class="rounded me-2" 
+                                             style="width: 35px; height: 50px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="book-cover-placeholder rounded me-2" 
+                                             style="width: 35px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-book text-white small"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        {{ record.book.title }}
+                                        <br>
+                                        <small class="text-muted">{{ record.book.author }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ record.borrow_date|date:"Y-m-d" }}</td>
+                            <td>
+                                {{ record.due_date|date:"Y-m-d" }}
+                                {% if record.is_overdue and record.status == 'borrowed' %}
+                                    <br><small class="text-danger">逾期{{ record.overdue_days }}天</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ record.return_date|date:"Y-m-d"|default:"-" }}</td>
+                            <td>
+                                {% if record.status == 'borrowed' %}
+                                    {% if record.is_overdue %}
+                                        <span class="badge bg-danger">已逾期</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">借阅中</span>
+                                    {% endif %}
+                                {% elif record.status == 'returned' %}
+                                    <span class="badge bg-success">已归还</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ record.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&status={{ status }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&status={{ status }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&status={{ status }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-journal-x display-1 text-muted mb-3"></i>
+                <h5>暂无借阅记录</h5>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

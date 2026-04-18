@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}图书列表 - 图书馆管理系统{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="bi bi-journal-bookmark me-2"></i>图书列表</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="sidebar">
+                <h5 class="mb-3"><i class="bi bi-funnel me-2"></i>筛选条件</h5>
+                <form method="get" id="filterForm">
+                    <div class="mb-3">
+                        <label class="form-label">搜索</label>
+                        <input type="text" class="form-control" name="search" 
+                               value="{{ form.search.value|default:'' }}" placeholder="书名或作者">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">分类</label>
+                        <select class="form-select" name="category">
+                            <option value="">全部分类</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.pk }}" {% if form.category.value|stringformat:"s" == cat.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ cat.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" name="status">
+                            <option value="">全部状态</option>
+                            <option value="available" {% if form.status.value == 'available' %}selected{% endif %}>可借阅</option>
+                            <option value="borrowed" {% if form.status.value == 'borrowed' %}selected{% endif %}>已借出</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-2"></i>筛选
+                    </button>
+                    <a href="{% url 'book_list' %}" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>重置
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <p class="text-muted mb-0">
+                    共找到 <strong>{{ page_obj.paginator.count }}</strong> 本图书
+                </p>
+            </div>
+
+            <div class="row g-4">
+                {% for book in page_obj %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card book-card h-100">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image }}" class="card-img-top" alt="{{ book.title }}">
+                        {% else %}
+                            <div class="book-cover-placeholder">
+                                <i class="bi bi-book"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text text-muted">
+                                <i class="bi bi-person me-1"></i>{{ book.author }}
+                            </p>
+                            {% if book.category %}
+                            <p class="card-text">
+                                <span class="badge bg-secondary">{{ book.category.name }}</span>
+                            </p>
+                            {% endif %}
+                            <p class="card-text small text-truncate">{{ book.description|default:"暂无简介" }}</p>
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge {% if book.is_available %}badge-available{% else %}badge-borrowed{% endif %}">
+                                        {% if book.is_available %}
+                                            可借 {{ book.available_copies }}/{{ book.total_copies }}
+                                        {% else %}
+                                            已借出
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary w-100">
+                                    <i class="bi bi-eye me-1"></i>查看详情
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="card text-center py-5">
+                        <i class="bi bi-journal-x display-1 text-muted mb-3"></i>
+                        <h4>暂无符合条件的图书</h4>
+                        <p class="text-muted">请尝试调整筛选条件</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&category={{ request.GET.category }}&status={{ request.GET.status }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}&category={{ request.GET.category }}&status={{ request.GET.status }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}&category={{ request.GET.category }}&status={{ request.GET.status }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
